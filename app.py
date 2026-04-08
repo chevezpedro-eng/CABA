@@ -203,10 +203,17 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
     if row.empty:
         return go.Figure(), go.Figure(), "No data"
 
-    curva_base = np.array(row["curva_base"].iloc[0])
-    curva_fv = np.array(row["curva_fv"].iloc[0])
-    curva_total = np.array(row["curva_total"].iloc[0])
-    soc = np.array(row["soc"].iloc[0])
+    import ast
+    
+    def parse_array(x):
+        if isinstance(x, str):
+            return np.array(ast.literal_eval(x))
+        return np.array(x)
+    
+    curva_base = parse_array(row["curva_base"].iloc[0])
+    curva_fv = parse_array(row["curva_fv"].iloc[0])
+    curva_total = parse_array(row["curva_total"].iloc[0])
+    soc = parse_array(row["soc"].iloc[0])
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(y=curva_fv, name="PV"))
