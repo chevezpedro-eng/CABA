@@ -186,14 +186,17 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
     if radio is None:
         return go.Figure(), go.Figure(), ""
 
-    fname = os.path.join(parquet_dir, f"radio_{radio}_mes{mes}.parquet")
+    # Nuevo formato: parquet unificado por radio
+    fname = os.path.join(parquet_dir, f"radio_{radio}.parquet")
 
     if not os.path.exists(fname):
         return go.Figure(), go.Figure(), "Archivo no encontrado"
 
     df = pd.read_parquet(fname)
 
+    # Filtrar por mes, sliders y BESS
     row = df[
+        (df["mes"] == mes) &
         (df["electrification"] == elec_pct) &
         (df["retrofitting"] == retro_pct) &
         (df["pv"] == fv_pct) &
@@ -204,12 +207,11 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
         return go.Figure(), go.Figure(), "No data"
 
     import ast
-    
     def parse_array(x):
         if isinstance(x, str):
             return np.array(ast.literal_eval(x))
         return np.array(x)
-    
+
     curva_base = parse_array(row["curva_base"].iloc[0])
     curva_fv = parse_array(row["curva_fv"].iloc[0])
     curva_total = parse_array(row["curva_total"].iloc[0])
@@ -221,22 +223,24 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
     p_bess_max = row["p_bess_max"].iloc[0]
     e_bess = row["e_bess"].iloc[0]
 
+    # Gráficos
     fig = go.Figure()
     fig.add_trace(go.Scatter(y=curva_fv, name="PV"))
     fig.add_trace(go.Scatter(y=curva_total, name="Total"))
     fig.add_trace(go.Scatter(y=curva_base, name="Base"))
-
     fig.update_layout(title=f"Radio {radio}", height=300)
 
     fig_soc = go.Figure()
     fig_soc.add_trace(go.Scatter(y=soc, name="SOC"))
+
+    # Contadores
     counters = (
-    f"Daily energy: {e_net:.1f} kWh | "
-    f"Pmax Scenario E: {pmax_e:.1f} kW | "
-    f"PV theoretical roofs: {potencia_teorica_total:.1f} kW | "
-    f"PV assigned: {potencia_asignada:.1f} kW | "
-    f"BESS — Pmax: {p_bess_max:.1f} kW | Capacity: {e_bess:.1f} kWh"
-)
+        f"Daily energy: {e_net:.1f} kWh | "
+        f"Pmax Scenario E: {pmax_e:.1f} kW | "
+        f"PV theoretical roofs: {potencia_teorica_total:.1f} kW | "
+        f"PV assigned: {potencia_asignada:.1f} kW | "
+        f"BESS — Pmax: {p_bess_max:.1f} kW | Capacity: {e_bess:.1f} kWh"
+    )
 
     return fig, fig_soc, counters
 
