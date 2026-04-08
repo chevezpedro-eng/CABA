@@ -214,6 +214,12 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
     curva_fv = parse_array(row["curva_fv"].iloc[0])
     curva_total = parse_array(row["curva_total"].iloc[0])
     soc = parse_array(row["soc"].iloc[0])
+    pmax_e = row["pmax_e"].iloc[0]
+    e_net = row["e_net"].iloc[0]
+    potencia_teorica_total = row["potencia_teorica_total"].iloc[0]
+    potencia_asignada = row["potencia_asignada"].iloc[0]
+    p_bess_max = row["p_bess_max"].iloc[0]
+    e_bess = row["e_bess"].iloc[0]
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(y=curva_fv, name="PV"))
@@ -224,8 +230,15 @@ def update_curves_parquet(radio, mes, elec_pct, retro_pct, fv_pct, bess_enable):
 
     fig_soc = go.Figure()
     fig_soc.add_trace(go.Scatter(y=soc, name="SOC"))
+    counters = (
+    f"Daily energy: {e_net:.1f} kWh | "
+    f"Pmax Scenario E: {pmax_e:.1f} kW | "
+    f"PV theoretical roofs: {potencia_teorica_total:.1f} kW | "
+    f"PV assigned: {potencia_asignada:.1f} kW | "
+    f"BESS — Pmax: {p_bess_max:.1f} kW | Capacity: {e_bess:.1f} kWh"
+)
 
-    return fig, fig_soc, "OK"
+    return fig, fig_soc, counters
 
 # =========================
 # RUN LOCAL
