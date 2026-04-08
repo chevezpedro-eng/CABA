@@ -14,7 +14,7 @@ from functools import lru_cache
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-parquet_dir = os.path.join(BASE_DIR, "parquets_test")
+parquet_dir = BASE_DIR
 
 radios = [20140903, 20141005]
 
