@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 parquet_dir = BASE_DIR
 
-radios = [20140903, 20141005]
+radios = [20140903, 20141005, 20210401]
 
 # =========================
 # SHAPE (RELATIVO!!)
